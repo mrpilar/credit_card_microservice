@@ -1,6 +1,11 @@
 spring:
   application:
     name: mscartoes
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
 
 server:
   port: 0
@@ -12,3 +17,17 @@ eureka:
   instance:
     instance-id: ${spring.application.name}:${random.value}
 
+mq:
+  queues:
+    emissao-cartoes: emissao-cartoes
+
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: '*'
+#
+#logging:
+#  file:
+#    name: ./logs/log-file.log
+#
