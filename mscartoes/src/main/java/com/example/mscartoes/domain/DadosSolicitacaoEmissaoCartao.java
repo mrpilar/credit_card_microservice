@@ -1,4 +1,4 @@
-package com.example.msavaliadorcredito.domain.model;
+package com.example.mscartoes.domain;
 
 import lombok.Data;
 

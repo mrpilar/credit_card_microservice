@@ -2,9 +2,11 @@ package com.example.msavaliadorcredito.application;
 
 import com.example.msavaliadorcredito.application.ex.DadosClienteNotFoundException;
 import com.example.msavaliadorcredito.application.ex.ErroComunicacaoMicroServiceException;
+import com.example.msavaliadorcredito.application.ex.ErroSolicitacaoCartaoException;
 import com.example.msavaliadorcredito.domain.model.*;
 import com.example.msavaliadorcredito.infra.clients.CartoesResourceClient;
 import com.example.msavaliadorcredito.infra.clients.ClienteResourceClient;
+import com.example.msavaliadorcredito.infra.mqueue.SolicitacaoEmissaoCartaoPublisher;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,6 +24,8 @@ public class AvaliadorCreditoService {
 
     private final ClienteResourceClient clientesClient;
     private final CartoesResourceClient cartoesClient;
+    private final SolicitacaoEmissaoCartaoPublisher emissaoCartaoPublisher;
+
 
     public SituacaoCliente obterSituacaoCliente(String cpf) throws DadosClienteNotFoundException,
             ErroComunicacaoMicroServiceException {
@@ -76,6 +81,16 @@ public class AvaliadorCreditoService {
                 throw new DadosClienteNotFoundException();
             }
             throw new ErroComunicacaoMicroServiceException(e.getMessage(), status);
+        }
+    }
+
+    public ProtocoloSolicitacaoCartao solicitarEmissaoCartao(DadosSolicitacaoEmissaoCartao dados) {
+        try {
+            emissaoCartaoPublisher.solicitarCartao(dados);
+            String protocolo = UUID.randomUUID().toString();
+            return new ProtocoloSolicitacaoCartao(protocolo);
+        } catch (Exception e) {
+            throw new ErroSolicitacaoCartaoException(e.getMessage());
         }
     }
 }
